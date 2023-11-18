@@ -1,2 +1,2 @@
 # fscalculator
-Formula Student score calculator
+Formula Student event score calculator
