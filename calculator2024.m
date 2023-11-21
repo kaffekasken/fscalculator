@@ -19,134 +19,155 @@ dcEventGroup            = 3;
 %% ========================================================================
 %-----------------------MENU FOR MANUAL EVENTS-----------------------------
 %--------------------------------------------------------------------------
-if eventGroupChoice == mEventGroup
-    disp('FSG2024 Score Calculator')
+switch eventGroupChoice
+    case mEventGroup
+        disp('FSG2024 Score Calculator')
 
-    msg = "Choose type of test";
-    options = ["Skidpad" "Acceleration" "Autocross" "xxx" "xxx"];
-    eventChoice = menu(msg,options);
+        msg = "Choose type of test";
+        options = ["Skidpad" "Acceleration" "Autocross" "xxx" "xxx"];
+        eventChoice = menu(msg,options);
 
-    eventMSkidpad         = 1;
-    eventMAccel           = 2;
-    eventMAutocross       = 3;
-    xxx                   = 4;
-    xxx                   = 5;
-end
+        eventMSkidpad         = 1;
+        eventMAccel           = 2;
+        eventMAutocross       = 3;
+        xxx                   = 4;
+        xxx                   = 5;
+
 %% ========================================================================
 %------------------------MENU FOR DV EVENTS--------------------------------
 %--------------------------------------------------------------------------
-if eventGroupChoice == dvEventGroup
-    disp('FSG2024 Score Calculator')
+    case dvEventGroup
+        disp('FSG2024 Score Calculator')
 
-    msg = "Choose type of test";
-    options = ["Skidpad" "Acceleration" "xxx" "xxx" "xxx"];
-    eventChoice = menu(msg,options);
+        msg = "Choose type of test";
+        options = ["Skidpad" "Acceleration" "xxx" "xxx" "xxx"];
+        eventChoice = menu(msg,options);
 
-    eventDVSkidpad            = 1;
-    eventDVAccel              = 2;
-    xxx                       = 3;
-    xxx                       = 4;
-    xxx                       = 5;
-end
+        eventDVSkidpad            = 1;
+        eventDVAccel              = 2;
+        xxx                       = 3;
+        xxx                       = 4;
+        xxx                       = 5;
 %% ========================================================================
 %---------------------------MENU FOR DC EVENTS-----------------------------
 %--------------------------------------------------------------------------
-if eventGroupChoice == dcEventGroup
-    disp('FSG2024 Score Calculator')
+    case dcEventGroup
+        disp('FSG2024 Score Calculator')
 
-    msg = "Choose type of test";
-    options = ["Skidpad" "Acceleration" "xxx" "xxx" "xxx"];
-    eventChoice = menu(msg,options);
+        msg = "Choose type of test";
+        options = ["Skidpad" "Acceleration" "xxx" "xxx" "xxx"];
+        eventChoice = menu(msg,options);
 
-    eventDCSkidpad               = 1;
-    eventDCAccel                 = 2;
-    xxx                          = 3;
-    xxx                          = 4;
-    xxx                          = 5;
+        eventDCSkidpad               = 1;
+        eventDCAccel                 = 2;
+        xxx                          = 3;
+        xxx                          = 4;
+        xxx                          = 5;
 end
 %% ========================================================================
-%--------------GUI USERINPUT FOR MANUAL- AND DC EVENTS---------------------
+%---------------------GUI USERINPUT FOR MANUAL-----------------------------
 %--------------------------------------------------------------------------
-if eventGroupChoice ~= dvEventGroup
-   prompt = {'Enter your time: ', 'Enter best time of event: ',...
-       'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
-       'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
-   dlgtitle = 'Event input';
-   fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
-   defaultinput = {'','','0','0','0','0','0'};
+switch eventGroupChoice
+    case mEventGroup
+        prompt = {'Enter your time: ', 'Enter best time of event: ',...
+            'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
+            'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
+        dlgtitle = 'Event input';
+        fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+        defaultinput = {'','','0','0','0','0','0'};
     
-   userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+        userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
     
-   yourTeamTime = str2double(userInput{1});
+        yourTeamTime = str2double(userInput{1});
     
-   bestTeamTime = str2double(userInput{2});
+        bestTeamTime = str2double(userInput{2});
 
-   penaltyDOO = str2double(userInput{3});
+        penaltyDOO = str2double(userInput{3});
 
-   penaltyOC = str2double(userInput{4});
+        penaltyOC = str2double(userInput{4});
 
-   penaltyUSS = str2double(userInput{5});
+        penaltyUSS = str2double(userInput{5});
 
-   bestTeamPenaltyDOO = str2double(userInput{6});
+        bestTeamPenaltyDOO = str2double(userInput{6});
 
-   bestTeamPenaltyOC = str2double(userInput{7});
+        bestTeamPenaltyOC = str2double(userInput{7});
+%---------------------Call to manual event functions-----------------------
+        switch eventChoice
+            case eventMSkidpad
+                eventScores = mSkidpadEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
+                    penaltyUSS, bestTeamPenaltyDOO);
+
+            case eventMAccel
+                eventScores = mAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
+                    penaltyUSS, bestTeamPenaltyDOO);
+    
+            case eventMAutocross
+                eventScores = mAutocrossEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
+                    penaltyUSS, bestTeamPenaltyDOO, bestTeamPenaltyOC);
+        end
+
 %% ========================================================================
 %------------------GUI USERINPUT FOR DV EVENTS-----------------------------
 %--------------------------------------------------------------------------
-elseif eventGroupChoice == dvEventGroup
-    prompt = {'Enter your team´s best time (without penalties)', 'Enter your team´s ranking: ',...
-            'Enter number of team´s who finished atleast one DV run without DNF or DQ: '};
-    dlgtitle = 'Event input';
-    fieldsize = [1 45; 1 45; 1 45;];
-    defaultinput = {'','', ''};
+    case dvEventGroup
+        prompt = {'Enter your team´s best time (without penalties)', 'Enter your team´s ranking: ',...
+                'Enter number of team´s who finished atleast one DV run without DNF or DQ: '};
+        dlgtitle = 'Event input';
+        fieldsize = [1 45; 1 45; 1 45;];
+        defaultinput = {'','', ''};
     
-    userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+        userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
 
-    yourTeamTime = str2double(userInput{1});
+        yourTeamTime = str2double(userInput{1});
     
-    yourTeamRanking = str2double(userInput{2});
+        yourTeamRanking = str2double(userInput{2});
     
-    numberTeams = str2double(userInput{3});
-end
+        numberTeams = str2double(userInput{3});
+%-------------------Call to DV event functions-----------------------------
+        switch eventChoice
+            case eventDVSkidpad
+                eventScores = dvSkidpadEventScore(yourTeamTime, yourTeamRanking, numberTeams);
+
+            case eventDVAccel
+                eventScores = dvAccelEventScore(yourTeamTime, yourTeamRanking, numberTeams);
+        end
+
 %% ========================================================================
-%---------------------------CALL TO FUNCTIONS------------------------------
+%-------------------GUI USERINPUT FOR DC EVENTS----------------------------
 %--------------------------------------------------------------------------
-%---THE TRY STATEMENT'S ONLY USE IS SO THAT WE CAN HAVE ALL THE CALLS TO--- 
-%---FUNCTIONS AT THE SAME PLACE--------------------------------------------
-%--------------------------------------------------------------------------
-%Call to manual event functions
-try if eventChoice == eventMSkidpad
-    eventScores = mSkidpadEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
-        penaltyUSS, bestTeamPenaltyDOO);
-
-    elseif eventChoice == eventMAccel
-        eventScores = mAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
-            penaltyUSS, bestTeamPenaltyDOO);
+     case dcEventGroup
+        prompt = {'Enter your time: ', 'Enter best time of event: ',...
+            'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
+            'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
+        dlgtitle = 'Event input';
+        fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+        defaultinput = {'','','0','0','0','0','0'};
     
-    elseif eventChoice == eventMAutocross
-        eventScores = mAutocrossEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
-            penaltyUSS, bestTeamPenaltyDOO, bestTeamPenaltyOC);
-    end
-end
+        userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+    
+        yourTeamTime = str2double(userInput{1});
+    
+        bestTeamTime = str2double(userInput{2});
 
-%Call to DV event functions
-try if eventChoice == eventDVSkidpad
-    eventScores = dvSkidpadEventScore(yourTeamTime, yourTeamRanking, numberTeams);
+        penaltyDOO = str2double(userInput{3});
 
-    elseif eventChoice == eventDVAccel
-    eventScores = dvAccelEventScore(yourTeamTime, yourTeamRanking, numberTeams);
-    end
-end
+        penaltyOC = str2double(userInput{4});
 
-%Call to DC event functions
-try if eventChoice == eventDCSkidpad
-    eventScores = dcSkidpadEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
-        penaltyOC, penaltyUSS, bestTeamPenaltyDOO);
+        penaltyUSS = str2double(userInput{5});
 
-    elseif eventChoice == eventDCAccel
-        eventScores = dcAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
-            penaltyOC, penaltyUSS, bestTeamPenaltyDOO);
-    end
+        bestTeamPenaltyDOO = str2double(userInput{6});
+
+        bestTeamPenaltyOC = str2double(userInput{7});
+%--------------------Call to DC event functions----------------------------
+        switch eventChoice
+            case eventDCSkidpad
+                eventScores = dcSkidpadEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
+                    penaltyOC, penaltyUSS, bestTeamPenaltyDOO);
+
+            case eventDCAccel
+                eventScores = dcAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
+                    penaltyOC, penaltyUSS, bestTeamPenaltyDOO);
+        end
 end
 %% ========================================================================
 %----------------------------PRINTS RESULTS--------------------------------
