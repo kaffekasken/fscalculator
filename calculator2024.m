@@ -55,12 +55,12 @@ switch eventGroupChoice
         disp('FSG2024 Score Calculator')
 
         msg = "Choose type of test";
-        options = ["Skidpad" "Acceleration" "xxx" "xxx" "xxx"];
+        options = ["Skidpad" "Acceleration" "Autocross" "xxx" "xxx"];
         eventChoice = menu(msg,options);
 
         eventDCSkidpad               = 1;
         eventDCAccel                 = 2;
-        xxx                          = 3;
+        eventDCAutocross             = 3;
         xxx                          = 4;
         xxx                          = 5;
 end
@@ -136,28 +136,86 @@ switch eventGroupChoice
 %-------------------GUI USERINPUT FOR DC EVENTS----------------------------
 %--------------------------------------------------------------------------
      case dcEventGroup
-        prompt = {'Enter your time: ', 'Enter best time of event: ',...
-            'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
-            'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
-        dlgtitle = 'Event input';
-        fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
-        defaultinput = {'','','0','0','0','0','0'};
+         switch eventChoice
+%--------------------------Special case Autocross--------------------------
+             case eventDCAutocross
+                 prompt = {'Enter your time for the 6 m/s lap',...
+                     'Enter your time for the first run: ', ...
+                     'Enter how many DOO´s for the first run',...
+                     'Enter how many OC´s for the first run',...
+                     'Enter how many USS´s for the first run',...
+                     'Enter your time for the second run',...
+                     'Enter how many DOO´s for the second run',...
+                     'Enter how many OC´s for the second run',...
+                     'Enter how many USS´s for the second run',...
+                     ...
+                     'Enter the best team´s time for the 6 m/s lap',...
+                     'Enter the best team´s time for the first run',...
+                     'Enter how many DOO´s for the first run',...
+                     'Enter how many OC´s for the first run',...
+                     'Enter how many USS´s for the first run',...
+                     'Enter the best team´s time for the second run',...
+                     'Enter how many DOO´s for the second run',...
+                     'Enter how many OC´s for the second run',...
+                     'Enter how many USS´s for the second run',...
+                     };
+                dlgtitle = 'Event input';
+                fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;...
+                    1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;...
+                    1 45; 1 45;];
+                defaultinput = {'','','0','0','0','','0','0','0',...
+                    '','','0','0','0','','0','0','0'};
+                
+                userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+                
+                timeSixMeterPerSecond = str2double(userInput{1});
+                yourTeamTime1         = str2double(userInput{2});
+                penaltyDOO1           = str2double(userInput{3});
+                penaltyOC1            = str2double(userInput{4});
+                penaltyUSS1           = str2double(userInput{5});
+                yourTeamTime2         = str2double(userInput{6});
+                penaltyDOO2           = str2double(userInput{7});
+                penaltyOC2            = str2double(userInput{8});
+                penaltyUSS2           = str2double(userInput{9});
+                
+                bestTeamTimeSixMeterPerSecond...
+                                      = str2double(userInput{10});
+                bestTeamTime1         = str2double(userInput{11});
+                bestTeamPenaltyDOO1   = str2double(userInput{12});
+                bestTeamPenaltyOC1    = str2double(userInput{13});
+                bestTeamPenaltyUSS1   = str2double(userInput{14});
+                bestTeamTime2         = str2double(userInput{15});
+                bestTeamPenaltyDOO2   = str2double(userInput{16});
+                bestTeamPenaltyOC2    = str2double(userInput{17});
+                bestTeamPenaltyUSS2   = str2double(userInput{18});
+%------------------------------Normal DC GUI-------------------------------
+             otherwise
+                prompt = {'Enter your time: ', 'Enter best time of event: ',...
+                    'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
+                    'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
+                dlgtitle = 'Event input';
+                fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+                defaultinput = {'','','0','0','0','0','0'};
+                
+                userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+                
+                yourTeamTime = str2double(userInput{1});
+                
+                bestTeamTime = str2double(userInput{2});
+            
+                penaltyDOO = str2double(userInput{3});
+            
+                penaltyOC = str2double(userInput{4});
+            
+                penaltyUSS = str2double(userInput{5});
+            
+                bestTeamPenaltyDOO = str2double(userInput{6});
+            
+                bestTeamPenaltyOC = str2double(userInput{7});
+         end
+
+
     
-        userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
-    
-        yourTeamTime = str2double(userInput{1});
-    
-        bestTeamTime = str2double(userInput{2});
-
-        penaltyDOO = str2double(userInput{3});
-
-        penaltyOC = str2double(userInput{4});
-
-        penaltyUSS = str2double(userInput{5});
-
-        bestTeamPenaltyDOO = str2double(userInput{6});
-
-        bestTeamPenaltyOC = str2double(userInput{7});
 %--------------------Call to DC event functions----------------------------
         switch eventChoice
             case eventDCSkidpad
@@ -167,6 +225,13 @@ switch eventGroupChoice
             case eventDCAccel
                 eventScores = dcAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
                     penaltyOC, penaltyUSS, bestTeamPenaltyDOO);
+
+            case eventDCAutocross
+                eventScores = dcAutocrossEventScore(timeSixMeterPerSecond,yourTeamTime1,...
+                    penaltyDOO1, penaltyOC1, penaltyUSS1, yourTeamTime2, penaltyDOO2, ...
+                    penaltyOC2, penaltyUSS2, bestTeamTimeSixMeterPerSecond, bestTeamTime1,...
+                    bestTeamPenaltyDOO1, bestTeamPenaltyOC1, bestTeamPenaltyUSS1, bestTeamTime2, ...
+                    bestTeamPenaltyDOO2, bestTeamPenaltyOC2, bestTeamPenaltyUSS2);
         end
 end
 %% ========================================================================
@@ -353,5 +418,52 @@ function [score] = dcAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
         if score <= 0.05*maxPoints
             score = 0.05*maxPoints;
         end
+    end
+end
+%----------------------------DC Autocross----------------------------------
+function [score] = dcAutocrossEventScore(timeSixMeterPerSecond,yourTeamTime1,...
+    penaltyDOO1, penaltyOC1, penaltyUSS1, yourTeamTime2, penaltyDOO2, ...
+    penaltyOC2, penaltyUSS2, bestTeamTimeSixMeterPerSecond, bestTeamTime1,...
+    bestTeamPenaltyDOO1, bestTeamPenaltyOC1, bestTeamPenaltyUSS1, bestTeamTime2, ...
+    bestTeamPenaltyDOO2, bestTeamPenaltyOC2, bestTeamPenaltyUSS2)
+    %takes input for a team's time and the best team's time, penalties and
+    %returns a score. Uses FS2024 Rules
+    maxPoints = 100;
+    
+    yourTeamTime1Factor = yourTeamTime1 + 2*penaltyDOO1 + 10*penaltyOC1;
+    yourTeamTime2Factor = yourTeamTime2 + 2*penaltyDOO2 + 10*penaltyOC2;
+
+    bestTeamTime1Factor = bestTeamTime1 + 2*bestTeamPenaltyDOO1 + 10*bestTeamPenaltyOC1;
+    bestTeamTime2Factor = bestTeamTime2 + 2*bestTeamPenaltyDOO2 + 10*bestTeamPenaltyOC2;
+
+    if yourTeamTime1Factor > timeSixMeterPerSecond || penaltyUSS1 > 0
+        yourTeamTime1Factor = timeSixMeterPerSecond;
+    end
+    
+    if yourTeamTime2Factor > timeSixMeterPerSecond || penaltyUSS2 > 0
+        yourTeamTime2Factor = timeSixMeterPerSecond;
+    end
+    
+    if bestTeamTime1Factor > bestTeamTimeSixMeterPerSecond || bestTeamPenaltyUSS1 > 0
+        bestTeamTime1Factor = bestTeamTimeSixMeterPerSecond;
+    end
+    
+    if bestTeamTime2Factor > bestTeamTimeSixMeterPerSecond || bestTeamPenaltyUSS2 > 0
+        bestTeamTime2Factor = bestTeamTimeSixMeterPerSecond;
+    end
+    
+    yourTeamTimeTotal = min(yourTeamTime1Factor, ((yourTeamTime1Factor + yourTeamTime2Factor)/2));
+    bestTeamTimeTotal = min(yourTeamTime1Factor, ((bestTeamTime1Factor + bestTeamTime2Factor)/2));
+    
+    if yourTeamTimeTotal <= bestTeamTimeTotal
+        score = maxPoints;
+    elseif yourTeamTimeTotal <= timeSixMeterPerSecond && yourTeamTimeTotal > 0
+        score = 0.9*maxPoints*((timeSixMeterPerSecond - yourTeamTimeTotal)/...
+            (timeSixMeterPerSecond - bestTeamTimeTotal)) + 0.1*maxPoints;
+        if score <= 0.1*maxPoints
+            score = 0.1*maxPoints;
+        end
+    elseif yourTeamTimeTotal == 0
+        score = 0;
     end
 end
