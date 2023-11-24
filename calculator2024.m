@@ -24,13 +24,13 @@ switch eventGroupChoice
         disp('FSG2024 Score Calculator')
 
         msg = "Choose type of test";
-        options = ["Skidpad" "Acceleration" "Autocross" "xxx" "xxx"];
+        options = ["Skidpad" "Acceleration" "Autocross" "Endurance" "xxx"];
         eventChoice = menu(msg,options);
 
         eventMSkidpad         = 1;
         eventMAccel           = 2;
         eventMAutocross       = 3;
-        xxx                   = 4;
+        eventMEndurance       = 4;
         xxx                   = 5;
 
 %% ========================================================================
@@ -69,28 +69,62 @@ end
 %--------------------------------------------------------------------------
 switch eventGroupChoice
     case mEventGroup
-        prompt = {'Enter your time: ', 'Enter best time of event: ',...
-            'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
-            'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
-        dlgtitle = 'Event input';
-        fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
-        defaultinput = {'','','0','0','0','0','0'};
-    
-        userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
-    
-        yourTeamTime = str2double(userInput{1});
-    
-        bestTeamTime = str2double(userInput{2});
+        switch eventChoice
+%------------------------Special case Manual Endurance---------------------
+            case eventMEndurance
+                prompt = {'Enter your total time', 'Enter the time for the longest lap',...
+                    'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
+                    'Enter best total time of event',...
+                    'Enter the time for the longest lap for the team with best total time',...
+                    'Enter how many DOO´s', 'Enter how many OC´s'};
+                dlgtitle = 'Event input';
+                fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+                defaultinput = {'','','0','0','0','','','0','0'};
+         
+                userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+         
+                yourTeamTime                 = str2double(userInput{1});
 
-        penaltyDOO = str2double(userInput{3});
+                yourTeamExtraLongLap         = str2double(userInput{2}); 
+         
+                penaltyDOO                   = str2double(userInput{3});
+         
+                penaltyOC                    = str2double(userInput{4});
+         
+                penaltyUSS                   = str2double(userInput{5});
+         
+                bestTeamTime                 = str2double(userInput{6});
+                
+                bestTeamExtraLongLap         = str2double(userInput{7});
 
-        penaltyOC = str2double(userInput{4});
-
-        penaltyUSS = str2double(userInput{5});
-
-        bestTeamPenaltyDOO = str2double(userInput{6});
-
-        bestTeamPenaltyOC = str2double(userInput{7});
+                bestTeamPenaltyDOO           = str2double(userInput{8});
+         
+                bestTeamPenaltyOC            = str2double(userInput{9});
+%---------------------------Normal Manual GUI------------------------------
+            otherwise
+                prompt = {'Enter your time', 'Enter best time of event',...
+                    'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
+                    'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
+                dlgtitle = 'Event input';
+                fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+                defaultinput = {'','','0','0','0','0','0'};
+         
+                userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+         
+                yourTeamTime        = str2double(userInput{1});
+         
+                bestTeamTime        = str2double(userInput{2});
+         
+                penaltyDOO          = str2double(userInput{3});
+         
+                penaltyOC           = str2double(userInput{4});
+         
+                penaltyUSS          = str2double(userInput{5});
+         
+                bestTeamPenaltyDOO  = str2double(userInput{6});
+         
+                bestTeamPenaltyOC   = str2double(userInput{7});
+        end
 %---------------------Call to manual event functions-----------------------
         switch eventChoice
             case eventMSkidpad
@@ -104,8 +138,10 @@ switch eventGroupChoice
             case eventMAutocross
                 eventScores = mAutocrossEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
                     penaltyUSS, bestTeamPenaltyDOO, bestTeamPenaltyOC);
+            case eventMEndurance
+                eventScores = mEnduranceEventScore(yourTeamTime, yourTeamExtraLongLap, penaltyDOO, penaltyOC,...
+                    penaltyUSS, bestTeamTime, bestTeamExtraLongLap, bestTeamPenaltyDOO, bestTeamPenaltyOC);
         end
-
 %% ========================================================================
 %------------------GUI USERINPUT FOR DV EVENTS-----------------------------
 %--------------------------------------------------------------------------
@@ -114,15 +150,15 @@ switch eventGroupChoice
                 'Enter number of team´s who finished atleast one DV run without DNF or DQ: '};
         dlgtitle = 'Event input';
         fieldsize = [1 45; 1 45; 1 45;];
-        defaultinput = {'','', ''};
+        defaultinput = {'','',''};
     
         userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
 
-        yourTeamTime = str2double(userInput{1});
+        yourTeamTime        = str2double(userInput{1});
     
-        yourTeamRanking = str2double(userInput{2});
+        yourTeamRanking     = str2double(userInput{2});
     
-        numberTeams = str2double(userInput{3});
+        numberTeams         = str2double(userInput{3});
 %-------------------Call to DV event functions-----------------------------
         switch eventChoice
             case eventDVSkidpad
@@ -190,7 +226,7 @@ switch eventGroupChoice
                 bestTeamPenaltyUSS2   = str2double(userInput{18});
 %------------------------------Normal DC GUI-------------------------------
              otherwise
-                prompt = {'Enter your time: ', 'Enter best time of event: ',...
+                prompt = {'Enter your time', 'Enter best time of event',...
                     'Enter how many DOO´s', 'Enter how many OC´s', 'Enter how many USS´s',...
                     'Enter how many DOO´s the best team got', 'Enter how many OC´s the best team got'};
                 dlgtitle = 'Event input';
@@ -199,19 +235,19 @@ switch eventGroupChoice
                 
                 userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
                 
-                yourTeamTime = str2double(userInput{1});
+                yourTeamTime        = str2double(userInput{1});
                 
-                bestTeamTime = str2double(userInput{2});
+                bestTeamTime        = str2double(userInput{2});
+                
+                penaltyDOO          = str2double(userInput{3});
             
-                penaltyDOO = str2double(userInput{3});
+                penaltyOC           = str2double(userInput{4});
             
-                penaltyOC = str2double(userInput{4});
+                penaltyUSS          = str2double(userInput{5});
             
-                penaltyUSS = str2double(userInput{5});
+                bestTeamPenaltyDOO  = str2double(userInput{6});
             
-                bestTeamPenaltyDOO = str2double(userInput{6});
-            
-                bestTeamPenaltyOC = str2double(userInput{7});
+                bestTeamPenaltyOC   = str2double(userInput{7});
          end
 
 
@@ -318,6 +354,34 @@ function [score] = mAutocrossEventScore(yourTeamTime, bestTeamTime, penaltyDOO,.
 
         if score <= 0.05*maxPoints
             score = 0.05*maxPoints;
+        end
+    end
+end
+%-----------------------------M Endurance----------------------------------
+function [score] = mEnduranceEventScore(yourTeamTime, yourTeamExtraLongLap,...
+    penaltyDOO, penaltyOC, penaltyUSS, bestTeamTime, bestTeamExtraLongLap,...
+    bestTeamPenaltyDOO, bestTeamPenaltyOC)
+    %takes input for a team's time, the best team's time, the time for
+    %the extra long laps, penalties and returns a score. Uses FS2024 Rules
+    maxPoints = 250;
+    
+    yourTeamCorrectedTime = (yourTeamTime - yourTeamExtraLongLap + 2*penaltyDOO...
+        + 10*penaltyOC);
+    bestTeamCorrectedTime = (bestTeamTime - bestTeamExtraLongLap + 2*bestTeamPenaltyDOO...
+        + 10*bestTeamPenaltyOC);
+    
+    if yourTeamCorrectedTime < bestTeamCorrectedTime
+        score = maxPoints - 50*penaltyUSS;
+    
+    else
+
+        score = 0.9*maxPoints*((bestTeamCorrectedTime*1.333 / yourTeamCorrectedTime - 1)...
+            / 0.333) + 0.1*maxPoints - 50*penaltyUSS;
+
+        if score <= 0.1*maxPoints && penaltyUSS == 0
+            score = 0.1*maxPoints;
+        elseif score <= 0.1*maxPoints && penaltyUSS > 0 
+            score = 0;
         end
     end
 end
