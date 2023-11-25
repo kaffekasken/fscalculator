@@ -24,14 +24,14 @@ switch eventGroupChoice
         disp('FSG2024 Score Calculator')
 
         msg = "Choose type of test";
-        options = ["Skidpad" "Acceleration" "Autocross" "Endurance" "xxx"];
+        options = ["Skidpad" "Acceleration" "Autocross" "Endurance" "Efficiency"];
         eventChoice = menu(msg,options);
 
         eventMSkidpad         = 1;
         eventMAccel           = 2;
         eventMAutocross       = 3;
         eventMEndurance       = 4;
-        xxx                   = 5;
+        eventMEfficiency      = 5;
 
 %% ========================================================================
 %------------------------MENU FOR DV EVENTS--------------------------------
@@ -40,14 +40,11 @@ switch eventGroupChoice
         disp('FSG2024 Score Calculator')
 
         msg = "Choose type of test";
-        options = ["Skidpad" "Acceleration" "xxx" "xxx" "xxx"];
+        options = ["Skidpad" "Acceleration"];
         eventChoice = menu(msg,options);
 
         eventDVSkidpad            = 1;
         eventDVAccel              = 2;
-        xxx                       = 3;
-        xxx                       = 4;
-        xxx                       = 5;
 %% ========================================================================
 %---------------------------MENU FOR DC EVENTS-----------------------------
 %--------------------------------------------------------------------------
@@ -55,14 +52,13 @@ switch eventGroupChoice
         disp('FSG2024 Score Calculator')
 
         msg = "Choose type of test";
-        options = ["Skidpad" "Acceleration" "Autocross" "xxx" "xxx"];
+        options = ["Skidpad" "Acceleration" "Autocross" "Trackdrive"];
         eventChoice = menu(msg,options);
 
         eventDCSkidpad               = 1;
         eventDCAccel                 = 2;
         eventDCAutocross             = 3;
-        xxx                          = 4;
-        xxx                          = 5;
+        eventDCTrackdrive            = 4;
 end
 %% ========================================================================
 %---------------------GUI USERINPUT FOR MANUAL-----------------------------
@@ -100,6 +96,36 @@ switch eventGroupChoice
                 bestTeamPenaltyDOO           = str2double(userInput{8});
          
                 bestTeamPenaltyOC            = str2double(userInput{9});
+%------------------------Special case Efficiency---------------------------
+            case eventMEfficiency
+                prompt = {'Enter your time without penalties (uncorrected time)',...
+                    'Enter "true" if your team recieved points in the endurance event and "false" if you didn´t',...
+                    'Your team´s measured voltage', 'Your team´s measured current',...
+                    'Your team´s regenerated energy', 'The best team´s time without penalties (uncorrected time)',...
+                    ['Enter the best team´s used energy (if it´s not provided leave it zero)'...
+                    ' (or calculate it (voltage*current - 0.9*regenerated energy)'],...
+                    ['Enter the best team´s efficiency factor / the lowest efficieny factor' ...
+                    ' (leave it zero if it´s not provided)']};
+                dlgtitle = 'Event input';
+                fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+                defaultinput = {'','true','','','','','0','0'};
+         
+                userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+         
+                yourTeamTime                    = str2double(userInput{1});
+
+                teamRecievedPointsCheck         = strcmp(userInput{2},'true');
+
+                measuredVoltage                 = str2double(userInput{3});
+
+                measuredCurrent                 = str2double(userInput{4});
+
+                regeneratedEnergy               = str2double(userInput{5});
+
+                bestTeamTime                    = str2double(userInput{6});
+                
+                bestTeamEnergy                  = str2double(userInput{7});
+                bestTeamEfficiency              = str2double(userInput{8});
 %---------------------------Normal Manual GUI------------------------------
             otherwise
                 prompt = {'Enter your time', 'Enter best time of event',...
@@ -138,9 +164,15 @@ switch eventGroupChoice
             case eventMAutocross
                 eventScores = mAutocrossEventScore(yourTeamTime, bestTeamTime, penaltyDOO, penaltyOC,...
                     penaltyUSS, bestTeamPenaltyDOO, bestTeamPenaltyOC);
+
             case eventMEndurance
                 eventScores = mEnduranceEventScore(yourTeamTime, yourTeamExtraLongLap, penaltyDOO, penaltyOC,...
                     penaltyUSS, bestTeamTime, bestTeamExtraLongLap, bestTeamPenaltyDOO, bestTeamPenaltyOC);
+
+            case eventMEfficiency
+                eventScores = mEfficiencyEventScore(yourTeamTime,teamRecievedPointsCheck,...
+                    measuredVoltage, measuredCurrent, regeneratedEnergy, bestTeamTime, ...
+                        bestTeamEnergy, bestTeamEfficiency);
         end
 %% ========================================================================
 %------------------GUI USERINPUT FOR DV EVENTS-----------------------------
@@ -224,6 +256,34 @@ switch eventGroupChoice
                 bestTeamPenaltyDOO2   = str2double(userInput{16});
                 bestTeamPenaltyOC2    = str2double(userInput{17});
                 bestTeamPenaltyUSS2   = str2double(userInput{18});
+%--------------------------Special case Trackdrive-------------------------
+             case eventDCTrackdrive
+                 prompt = {'Enter your time', 'Enter amount of completed laps'...
+                    'Enter best time of event', 'Enter how many DOO´s',...
+                    'Enter how many OC´s', 'Enter how many USS´s',...
+                    'Enter how many DOO´s the best team got',...
+                    'Enter how many OC´s the best team got'};
+                dlgtitle = 'Event input';
+                fieldsize = [1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45; 1 45;];
+                defaultinput = {'','','','0','0','0','0','0'};
+                
+                userInput = inputdlg(prompt,dlgtitle,fieldsize,defaultinput);
+                
+                yourTeamTime        = str2double(userInput{1});
+                
+                completedLaps       = str2double(userInput{2});
+                
+                bestTeamTime        = str2double(userInput{3});
+                
+                penaltyDOO          = str2double(userInput{4});
+            
+                penaltyOC           = str2double(userInput{5});
+            
+                penaltyUSS          = str2double(userInput{6});
+            
+                bestTeamPenaltyDOO  = str2double(userInput{7});
+            
+                bestTeamPenaltyOC   = str2double(userInput{8});
 %------------------------------Normal DC GUI-------------------------------
              otherwise
                 prompt = {'Enter your time', 'Enter best time of event',...
@@ -248,10 +308,7 @@ switch eventGroupChoice
                 bestTeamPenaltyDOO  = str2double(userInput{6});
             
                 bestTeamPenaltyOC   = str2double(userInput{7});
-         end
-
-
-    
+        end
 %--------------------Call to DC event functions----------------------------
         switch eventChoice
             case eventDCSkidpad
@@ -268,6 +325,10 @@ switch eventGroupChoice
                     penaltyOC2, penaltyUSS2, bestTeamTimeSixMeterPerSecond, bestTeamTime1,...
                     bestTeamPenaltyDOO1, bestTeamPenaltyOC1, bestTeamPenaltyUSS1, bestTeamTime2, ...
                     bestTeamPenaltyDOO2, bestTeamPenaltyOC2, bestTeamPenaltyUSS2);
+            case eventDCTrackdrive
+                eventScores = dcTrackdriveEventScore(yourTeamTime, completedLaps,...
+                    bestTeamTime, penaltyDOO, penaltyOC, penaltyUSS,...
+                        bestTeamPenaltyDOO, bestTeamPenaltyOC);
         end
 end
 %% ========================================================================
@@ -279,7 +340,7 @@ disp(round(eventScores,2))
 %----------------------------Manual skidpad--------------------------------
 function [score] = mSkidpadEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
     penaltyOC, penaltyUSS, bestTeamPenaltyDOO)
-    % takes input for a team's time and the best team's time, penalties and
+    % Takes input for a team's time and the best team's time, penalties and
     % returns a score. Uses FSG2024 Rules
     maxPoints = 50;
 
@@ -306,7 +367,7 @@ end
 %-------------------------Manual Acceleration------------------------------
 function [score] = mAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
     penaltyOC, penaltyUSS, bestTeamPenaltyDOO)
-    % takes input for a team's time and the best team's time, penalties and
+    % Takes input for a team's time and the best team's time, penalties and
     % returns a score. Uses FSG2024 Rules
     maxPoints = 50;
 
@@ -333,8 +394,8 @@ end
 %-------------------------Manual Autocross---------------------------------
 function [score] = mAutocrossEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
     penaltyOC, penaltyUSS, bestTeamPenaltyDOO, bestTeamPenaltyOC)
-    %takes input for a team's time and the best team's time, penalties and
-    %returns a score. Uses FS2024 Rules
+    % Takes input for a team's time and the best team's time, penalties and
+    % returns a score. Uses FS2024 Rules
     maxPoints = 100;
 
     if penaltyUSS > 0
@@ -361,8 +422,8 @@ end
 function [score] = mEnduranceEventScore(yourTeamTime, yourTeamExtraLongLap,...
     penaltyDOO, penaltyOC, penaltyUSS, bestTeamTime, bestTeamExtraLongLap,...
     bestTeamPenaltyDOO, bestTeamPenaltyOC)
-    %takes input for a team's time, the best team's time, the time for
-    %the extra long laps, penalties and returns a score. Uses FS2024 Rules
+    % Takes input for a team's time, the best team's time, the time for
+    % the extra long laps, penalties and returns a score. Uses FS2024 Rules
     maxPoints = 250;
     
     yourTeamCorrectedTime = (yourTeamTime - yourTeamExtraLongLap + 2*penaltyDOO...
@@ -371,12 +432,12 @@ function [score] = mEnduranceEventScore(yourTeamTime, yourTeamExtraLongLap,...
         + 10*bestTeamPenaltyOC);
     
     if yourTeamCorrectedTime < bestTeamCorrectedTime
-        score = maxPoints - 50*penaltyUSS;
+        score = maxPoints - 0*penaltyUSS;
     
     else
 
         score = 0.9*maxPoints*((bestTeamCorrectedTime*1.333 / yourTeamCorrectedTime - 1)...
-            / 0.333) + 0.1*maxPoints - 50*penaltyUSS;
+            / 0.333) + 0.1*maxPoints - 0*penaltyUSS;
 
         if score <= 0.1*maxPoints && penaltyUSS == 0
             score = 0.1*maxPoints;
@@ -385,15 +446,52 @@ function [score] = mEnduranceEventScore(yourTeamTime, yourTeamExtraLongLap,...
         end
     end
 end
+%-----------------------------M Efficiency---------------------------------
+function [score] = mEfficiencyEventScore(yourTeamTime,teamRecievedPointsCheck,...
+    measuredVoltage, measuredCurrent, regeneratedEnergy, bestTeamTime, ...
+    bestTeamEnergy, bestTeamEfficiency)
+    % Takes input for your team's uncorrected endurance time, information 
+    % if the team recieved points in the endurance event, your team's 
+    % measured voltage, current and regenerated energy and the best team's 
+    % uncorrected endurance time and the best team's energy. 
+    % Uses FS2024 rules
+    maxPoints = 75;
+    
+    if teamRecievedPointsCheck ~= true
+        score = 0;
+
+    elseif yourTeamTime > bestTeamTime*1.333
+        score = 0;
+     
+    elseif teamRecievedPointsCheck && yourTeamTime < bestTeamTime*1.333
+
+        yourTeamEnergy = measuredVoltage*measuredCurrent - 0.9*regeneratedEnergy;
+
+        yourTeamEfficiencyFactor = yourTeamTime^2 * yourTeamEnergy;
+        
+        if bestTeamEfficiency > 0 
+            minEfficiencyFactor = bestTeamEfficiency;
+
+            maxEfficiencyFactor = 1.5 * minEfficiencyFactor;
+
+        elseif bestTeamEfficiency == 0
+            minEfficiencyFactor = bestTeamTime^2 * bestTeamEnergy;
+
+            maxEfficiencyFactor = 1.5 * minEfficiencyFactor;
+        end
+        
+        score = maxPoints*((maxEfficiencyFactor - yourTeamEfficiencyFactor)...
+            /(maxEfficiencyFactor - minEfficiencyFactor));
+    end
+end
 %% ========================================================================
 %----------------------------FUNCTIONS FOR DV------------------------------
 %--------------------------------------------------------------------------
 %------------------------------DV Skidpad----------------------------------
 function [score] = dvSkidpadEventScore(yourTeamTime, yourTeamRanking, numberTeams)
-    % takes input for a team's time, your ranking and the number of team's
-    % with atleast one manual or DV run without DNF or DQ 
-    % and returns a score
-    % uses FSG2024 Rules
+    % Takes input for a team's time, your ranking and the number of team's
+    % with atleast one manual or DV run without DNF or DQ and returns a 
+    % score. Uses FSG2024 Rules
     maxPoints = 75;
     
     if round(yourTeamTime,3) <= 25
@@ -410,10 +508,9 @@ end
 
 %-----------------------------DV Acceleration------------------------------
 function [score] = dvAccelEventScore(yourTeamTime, yourTeamRanking, numberTeams)
-    % takes input for a team's time, your ranking and the number of team's
-    % with atleast one manual or DV run without DNF or DQ 
-    % and returns a score
-    % uses FSG2024 Rules
+    % Takes input for a team's time, your ranking and the number of team's
+    % with atleast one manual or DV run without DNF or DQ and returns a 
+    % score. Uses FSG2024 Rules
     maxPoints = 75;
     
     if round(yourTeamTime,3) <= 25
@@ -434,7 +531,7 @@ end
 %-----------------------------DC Skidpad-----------------------------------
 function [score] = dcSkidpadEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
     penaltyOC, penaltyUSS, bestTeamPenaltyDOO)
-    % takes input for a team's best time and the best team's time, 
+    % Takes input for a team's best time and the best team's time, 
     % penalties and returns a score. Uses FSG2024 Rules
     maxPoints = 75;
 
@@ -461,7 +558,7 @@ end
 %-----------------------------DC Acceleration------------------------------
 function [score] = dcAccelEventScore(yourTeamTime, bestTeamTime, penaltyDOO,...
     penaltyOC, penaltyUSS, bestTeamPenaltyDOO)
-    % takes input for a team's time and the best team's time, penalties and
+    % Takes input for a team's time and the best team's time, penalties and
     % returns a score. Uses FSG2024 Rules
     maxPoints = 75;
 
@@ -490,8 +587,8 @@ function [score] = dcAutocrossEventScore(timeSixMeterPerSecond,yourTeamTime1,...
     penaltyOC2, penaltyUSS2, bestTeamTimeSixMeterPerSecond, bestTeamTime1,...
     bestTeamPenaltyDOO1, bestTeamPenaltyOC1, bestTeamPenaltyUSS1, bestTeamTime2, ...
     bestTeamPenaltyDOO2, bestTeamPenaltyOC2, bestTeamPenaltyUSS2)
-    %takes input for a team's time and the best team's time, penalties and
-    %returns a score. Uses FS2024 Rules
+    % Takes input for a team's time and the best team's time, penalties and
+    % returns a score. Uses FS2024 Rules
     maxPoints = 100;
     
     yourTeamTime1Factor = yourTeamTime1 + 2*penaltyDOO1 + 10*penaltyOC1;
@@ -528,6 +625,31 @@ function [score] = dcAutocrossEventScore(timeSixMeterPerSecond,yourTeamTime1,...
             score = 0.1*maxPoints;
         end
     elseif yourTeamTimeTotal == 0
+        score = 0;
+    end
+end
+%----------------------------DC Trackdrive---------------------------------
+function [score] = dcTrackdriveEventScore(yourTeamTime, completedLaps,...
+    bestTeamTime, penaltyDOO, penaltyOC, penaltyUSS, bestTeamPenaltyDOO, bestTeamPenaltyOC)
+    % Takes input for a team's time and the best team's time, penalties and
+    % returns a score. Uses FS2024 Rules
+    maxPoints = 200;
+    
+    yourTeamCorrectedTime = (yourTeamTime + 2*penaltyDOO + 10*penaltyOC);
+    bestTeamCorrectedTime = (bestTeamTime + 2*bestTeamPenaltyDOO + 10*bestTeamPenaltyOC);
+    
+    if yourTeamCorrectedTime < bestTeamCorrectedTime
+        score = maxPoints - 50*penaltyUSS;
+    
+    elseif yourTeamCorrectedTime < 2 * bestTeamCorrectedTime
+
+        score = 0.75*maxPoints*(bestTeamCorrectedTime*2 / yourTeamCorrectedTime - 1)...
+            + 0.025*maxPoints*completedLaps - 50*penaltyUSS;
+
+        if score <= 0
+            score = 0;
+        end
+    else
         score = 0;
     end
 end
